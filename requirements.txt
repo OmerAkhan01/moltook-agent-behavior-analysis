@@ -1,0 +1,11 @@
+pandas
+matplotlib
+seaborn
+jupyterlab
+streamlit
+
+
+
+
+
+

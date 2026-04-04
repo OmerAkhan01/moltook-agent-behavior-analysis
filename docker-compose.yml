@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  analysis:
+    build: .
+    container_name: moltbook_jupyter
+    ports:
+      - "8888:8888"
+    volumes:
+      - .:/app
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+
+  app:
+    build: .
+    container_name: moltbook_streamlit
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app
+    # app.py'nin MoltAnalytics klasörü içinde olduğunu belirttik:
+    command: streamlit run MoltAnalytics/app.py --server.port=8501 --server.address=0.0.0.0

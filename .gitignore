@@ -1,0 +1,24 @@
+# Büyük veri setlerini ve CSV dosyalarını git'e göndermiyoruz
+*.csv
+moltbook_final_v4.csv
+moltbook_temiz.csv
+
+# Jupyter Notebook otomatik kayıt klasörleri
+.ipynb_checkpoints/
+
+# Python önbellek (cache) ve geçici dosyaları
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Sanal ortam klasörleri (varsa)
+env/
+venv/
+.env/
+
+# İşletim sistemi ve Ide ayar dosyaları
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
