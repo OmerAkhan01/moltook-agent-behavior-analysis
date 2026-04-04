@@ -1,0 +1,23 @@
+👑 Backend ve Scrum Master (Senin Görevlerin)
+Sen ekibin yöneticisi ve teknik altyapı sorumlususun. İlk hafta senin kurduğun iskeletin üzerine inşa edilecek.
+Klasörleri ve GitHub'ı Kur: Bilgisayarında MoltAnalytics adında bir klasör oluştur. İçine kodları koyacağınız bir yapı kur (örneğin data/, pages/, src/ klasörleri). Bunu GitHub'a yükle ve ekip arkadaşlarını bu depoya (repository) davet et.
+Kütüphaneleri Belirle: Projenin ana dizininde bir requirements.txt dosyası oluştur. İçine şimdilik sadece şunları yaz: streamlit, pandas, pyarrow, datasets. (Eğer bilgisayarlar arası sürüm uyuşmazlığı yaşamak istemezseniz, bu aşamada projeye basit bir Dockerfile da ekleyerek ortamı tamamen izole edebilirsin).
+Veri Yükleyiciyi Yaz: src/ klasörü içine data_loader.py adında bir dosya aç. İçine Streamlit'in @st.cache_data özelliğini kullanarak veriyi RAM'e bir kere alacak basit bir fonksiyon yaz. (Örn: def load_data(): return pd.read_parquet("data/raw_data.parquet")).
+
+📥 Veri Çeken (Data Fetcher) Görevleri
+Bu arkadaşının tek derdi internetteki o devasa veriyi alıp sizin projenin içine, en hızlı okunacak formatta koymak.
+Hugging Face Bağlantısı: Hugging Face sitesinde bir hesap açıp erişim token'ı (şifresi) alacak.
+Veriyi İndirme Scripti: src/ klasörüne fetch_data.py adında bir dosya açacak. Python'daki datasets kütüphanesini kullanarak AIcell/moltbook-data (1.8M gönderi) veri setini çekecek kodları yazacak. Bilgisayarı kasmaması için streaming=True ayarını açmayı unutmamalı.
+Parquet Formatına Çevirme: İnen veriyi CSV olarak değil, çok daha hızlı olan Parquet formatına çevirip (df.to_parquet()) senin oluşturduğun data/ klasörüne kaydedecek.
+
+🔬 Veri İşleyen (Data Processor) Görevleri
+Bu arkadaşın veriyi temizlemekle sorumlu. İlk hafta karmaşık analizler yapmayacak, sadece "pis" veriyi temizleyecek.
+Veriyle Tanışma: Veri Çeken arkadaşın oluşturduğu .parquet dosyasını Pandas ile okuyup içine bakacak (df.head(), df.info()). Hangi sütunlarda eksik veri (NaN) var, onları tespit edecek.
+Tarihleri Düzeltme: Otonom ajanların attığı mesajların tarih formatları genelde karışıktır. Bunları Pandas'ın to_datetime fonksiyonu ile standart ve düzgün bir ISO formatına çevirecek.
+İlk Deşifre (Base64): Ajanların şifreli metinlerini (SGVsbG8= gibi) yakalayan bir Python fonksiyonu yazacak ve bu şifreleri çözüp tablonun sonuna "Deşifre_Metin" adında yeni bir sütun olarak ekleyecek.
+
+🎨 Frontend Geliştirici Görevleri
+Bu arkadaşın ilk hafta hiçbir grafikle veya veriyle uğraşmayacak. Sadece uygulamanın boş çerçevesini çizecek.
+Ana Sayfayı Kurma: Projenin kök dizinine app.py adında bir dosya açıp içine sadece import streamlit as st ve st.title("MoltAnalytics Dashboard") yazacak.
+Sayfa Yapısını Oluşturma: Ana dizinde pages/ adında bir klasör açacak. İçine üç tane boş Python dosyası oluşturacak: 01_Davranis.py, 02_Kimlikler.py, 03_Tahmin.py.
+Yan Menü (Sidebar): app.py içine Streamlit'in st.sidebar komutlarını kullanarak sol tarafta duracak bir menü iskeleti hazırlayacak ve projeye siyah/kırmızı tema kodlarını ekleyecek.
