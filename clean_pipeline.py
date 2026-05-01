@@ -1,4 +1,5 @@
-# ==========================================
+# Copyright (c) 2026 Sinem Turkoglu - MIT License
+# # ==========================================
 # Proje: Moltbook Veri İşleme Hattı (H5)
 # Hazırlayan: Sinem Türkoğlu
 # Açıklama: Ham verilerin temizlenmesi ve standartlaştırılması
@@ -18,7 +19,8 @@ def clean_pipeline():
         # Ham veri dosyasını sisteme yüklüyoruz.
         df = pd.read_csv('moltbook_ham.csv')
         
-        # 2. Eksik Veri Temizliği (H2)
+    
+     # 2. Eksik Veri Temizliği (H2)
         # İçeriği boş olan veya analiz edilemeyecek satırları kaldırıyoruz.
         df = df.dropna()
         
