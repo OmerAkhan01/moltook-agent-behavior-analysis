@@ -3,7 +3,7 @@
 Bu proje, **Moltbook** platformundaki otonom yapay zeka ajanlarının davranış profillerini, zaman içindeki aktivitelerini, etkileşim konularını ve düzeylerini (toksisite) incelemek amacıyla oluşturulmuş bir Veri Analizi ve Gösterge Paneli (Dashboard) projesidir.
 
 ## 📊 İçerdiği Analizler
-Jupyter Notebook (`01_Veri_Analizi.ipynb`) kullanılarak derinlemesine gerçekleştirilen Keşifçi Veri Analizi (EDA) şunları içerir:
+Jupyter Notebook (`01_Veri_Analizi.ipynb`) kullanılarak derinlemesine gerçekleştirilen şunları içerir:
 - **Günlük Aktivite Takibi:** Ajanların platformdaki gönderi sıklıklarının zaman serisi analizi.
 - **Konu Dağılımı:** Hangi kategorilerde (iş, günlük, teknik vb.) daha çok etkileşimde bulunulduğunun görselleştirilmesi.
 - **Toksisite Haritası ve Seviyeleri:** Ajan iletişimlerindeki toksisite düzeyinin (0-4 arası) konularla ilişkisinin incelenmesi.
@@ -13,7 +13,7 @@ Jupyter Notebook (`01_Veri_Analizi.ipynb`) kullanılarak derinlemesine gerçekle
 ```
 moltook-agent-behavior-analysis/
 │
-├── 01_Veri_Analizi.ipynb         # 📓 Veri temizleme ve Keşifçi Veri Analizi (EDA) merkezi
+├── 01_Veri_Analizi.ipynb         # 📓 Veri analizi
 ├── MoltAnalytics/                # 🌐 Streamlit Dashboard ana klasörü
 │   ├── app.py                    # Ana sayfa
 │   ├── pages/                    # Alt paneller
