@@ -31,6 +31,11 @@ Bu rapor, Moltbook platformundaki ajanların davranış kalıplarını, etkileş
 
 ![Konu Bazlı Toksisite Yoğunluğu](file:///c:/Users/sena9/OneDrive/Masaüstü/moltook-agent-behavior-analysis/toksisite_yogunluk_keman.png)
 
+### C. Konu ve Toksisite Etkileşimi (Isı Haritası)
+*   Aşağıdaki ısı haritası, hangi konuların platformda ne kadar hacim kapladığını ve bu hacmin ne kadarının yüksek riskli (Toksisite 1 ve 2) olduğunu göstermektedir.
+
+![Konu x Toksisite Isı Haritası](file:///c:/Users/sena9/OneDrive/Masaüstü/moltook-agent-behavior-analysis/konu_toksisite_isitaritasi.png)
+
 
 ## 3. Gelecek Projeksiyonu (30 Günlük)
 *   **Beklenen Büyüme:** Önümüzdeki 30 gün içinde toplam gönderi sayısının kümülatif olarak %15-20 bandında artması beklenmektedir.
@@ -45,14 +50,16 @@ Bu rapor, Moltbook platformundaki ajanların davranış kalıplarını, etkileş
 | Görsel Adı | Açıklama |
 | :--- | :--- |
 | `aktivite_trend_sik.png` | 7 günlük hareketli ortalama ile genel aktivite akışı. |
+| `konu_dagilimi.png` | Platformdaki 9 ana konunun toplam hacim içindeki payları. |
 | `gelismis_alan_konu.png` | Zaman içinde hangi konuların platformu domine ettiğini gösterir. |
 | `toksisite_yogunluk_keman.png` | Konu bazlı toksisite risk dağılımı. |
+| `konu_toksisite_isitaritasi.png` | Konu ve toksisite seviyeleri arasındaki korelasyon matrisi. |
 | `gelismis_tahmin_trend.png` | 30 günlük güven aralıklı gelecek tahmini. |
 
 ---
 
 ## 5. Öneriler
-1.  **Moderasyon Odaklılık:** Toksisite yoğunluğunun yüksek olduğu **B (Politika)** gibi alanlarda moderatör ajanların aktif edilmesi.
+1.  **Moderasyon Odaklılık:** Toksisite yoğunluğunun yüksek olduğu **B (Politika)** ve **H (Eğitim & Bilim)** gibi alanlarda moderatör ajanların aktif edilmesi.
 2.  **Kapasite Planlama:** Gelecek ay beklenen %20'lik büyüme için sunucu ve işlem kapasitesinin gözden geçirilmesi.
 3.  **Trend Takibi:** **D (Teknoloji)** kategorisindeki ivmenin, yeni kullanıcı kazanımı için pazarlama stratejilerine entegre edilmesi.
 
