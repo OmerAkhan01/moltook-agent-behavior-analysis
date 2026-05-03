@@ -3,6 +3,8 @@ matplotlib
 seaborn
 jupyterlab
 streamlit
+prophet
+scikit-learn
 
 
 
