@@ -1,3 +1,10 @@
+# Copyright (c) 2026 Sinem Turkoglu - MIT License
+# # ==========================================
+# Project: MoltAnalytics (Main App)
+# Author: Sinem Türkoğlu
+# Description: Streamlit root application for MoltAnalytics.
+# ==========================================
+
 import streamlit as st
 
 st.set_page_config(

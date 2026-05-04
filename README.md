@@ -40,7 +40,14 @@ Bu projeyi bilgisayarınızda çalıştırmak için **Docker** kullanmanız yete
    docker-compose up --build -d
    ```
 
-3. **Sayfalara Erişin:**
+3. **Birleştirilmiş Analiz Hattını Çalıştırın (Sprint 5):**
+   Tüm temizleme, kümeleme ve tahminleme adımlarını tek bir komutla çalıştırmak ve yüksek çözünürlüklü (300 DPI) grafikleri üretmek için:
+   ```bash
+   python run_all.py
+   ```
+   Bu komut sonucunda oluşan grafikler `plots/` klasörüne kaydedilecektir.
+
+4. **Sayfalara Erişin:**
    - 🧮 **Jupyter Lab (Analiz Ortamı):** `http://localhost:8888` (Şifresiz erişim)
    - 🌐 **Streamlit (Dashboard):** `http://localhost:8501`
 

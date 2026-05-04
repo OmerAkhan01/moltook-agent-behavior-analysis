@@ -1,3 +1,10 @@
+# Copyright (c) 2026 Sinem Turkoglu - MIT License
+# # ==========================================
+# Project: MoltAnalytics Dashboard
+# Author: Sinem Türkoğlu
+# Description: Streamlit application for agent behavior analysis.
+# ==========================================
+
 import streamlit as st
 
 # Sayfa yapılandırması
