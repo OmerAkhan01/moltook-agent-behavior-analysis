@@ -95,6 +95,31 @@ def perform_general_analysis(df):
     plt.savefig(f'{PLOTS_DIR}/03_toxicity_distribution.png', dpi=DPI)
     plt.close()
 
+    # 4. Topic vs Toxicity Relation (Heatmap)
+    plt.figure(figsize=(12, 8))
+    pivot_table = df.pivot_table(index='topic_display', columns='toxic_level', values='id', aggfunc='count').fillna(0)
+    # Convert counts to percentages for better academic comparison
+    pivot_percent = pivot_table.div(pivot_table.sum(axis=1), axis=0) * 100
+    sns.heatmap(pivot_percent, annot=True, fmt='.1f', cmap='YlOrRd', cbar_kws={'label': 'Percentage (%)'})
+    plt.title('Correlation between Topic and Toxicity Levels (%)', fontsize=16)
+    plt.xlabel('Toxicity Level (0: Low, 1: High)')
+    plt.ylabel('Discussion Topic')
+    plt.tight_layout()
+    plt.savefig(f'{PLOTS_DIR}/07_topic_toxicity_heatmap.png', dpi=DPI)
+    plt.close()
+
+    # 5. Toxicity vs Content Length (Violin Plot)
+    plt.figure(figsize=(10, 6))
+    df['content_length'] = df['content_body'].fillna('').apply(len)
+    sns.violinplot(data=df, x='toxic_level', y='content_length', hue='toxic_level', palette='coolwarm', legend=False)
+    plt.title('Toxicity Levels by Content Length', fontsize=16)
+    plt.xlabel('Toxicity Level')
+    plt.ylabel('Character Count')
+    plt.ylim(0, df['content_length'].quantile(0.95)) # Focus on the majority
+    plt.tight_layout()
+    plt.savefig(f'{PLOTS_DIR}/08_toxicity_violin_analysis.png', dpi=DPI)
+    plt.close()
+
 def perform_clustering(df, n_clusters=4):
     """
     Performs feature engineering and KMeans clustering.
@@ -135,6 +160,19 @@ def perform_clustering(df, n_clusters=4):
     plt.ylabel('PCA Component 2')
     plt.tight_layout()
     plt.savefig(f'{PLOTS_DIR}/04_clustering_pca.png', dpi=DPI)
+    plt.close()
+    
+    # 5. Topic Composition by Cluster
+    plt.figure(figsize=(12, 6))
+    cluster_topic = df.groupby(['cluster', 'topic_display']).size().unstack(fill_value=0)
+    cluster_topic_percent = cluster_topic.div(cluster_topic.sum(axis=1), axis=0) * 100
+    cluster_topic_percent.plot(kind='bar', stacked=True, colormap='tab20', figsize=(12, 6))
+    plt.title('Topic Composition by Behavioral Cluster (%)', fontsize=16)
+    plt.xlabel('Behavioral Cluster ID')
+    plt.ylabel('Percentage (%)')
+    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', title='Topics')
+    plt.tight_layout()
+    plt.savefig(f'{PLOTS_DIR}/09_cluster_topic_composition.png', dpi=DPI)
     plt.close()
     
     # Feature distribution by cluster
