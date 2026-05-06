@@ -42,8 +42,8 @@ dil_analizi = pd.DataFrame({
     'type': ['Normal', 'Encrypted'],
     'count': [len(df[~df['is_encrypted']]), len(df[df['is_encrypted']])]
 })
-dil_analizi.to_csv("data/processed/dil_analizi.csv", index=False)
-print("Base64 analysis saved to dil_analizi.csv")
+dil_analizi.to_json("data/processed/dil_analizi.json", orient="records")
+print("Base64 analysis saved to dil_analizi.json")
 
 # 3. TOXICITY (Using existing toxic_level if available, or generating score)
 print("[Step 3/5] Processing toxicity scores...")
@@ -71,8 +71,8 @@ cluster_df['pca_y'] = coords[:, 1]
 cluster_df.columns = ['id', 'toxicity_score', 'is_encrypted', 'upvotes_count', 'cluster', 'pca_x', 'pca_y']
 
 # Save a smaller sample for the scatter plot to keep it fast (e.g., 5k points)
-cluster_df.sample(n=min(5000, len(cluster_df))).to_csv("data/processed/ajan_kumeleri.csv", index=False)
-print("Cluster data saved to ajan_kumeleri.csv (Post-based)")
+cluster_df.sample(n=min(5000, len(cluster_df))).to_json("data/processed/ajan_kumeleri.json", orient="records")
+print("Cluster data saved to ajan_kumeleri.json (Post-based)")
 
 # 5. PROPHET FORECAST (Forecast Page)
 print("[Step 5/5] Simulating future toxicity trends (Prophet)...")
@@ -85,14 +85,28 @@ try:
     forecast_data.columns = ['ds', 'y']
     forecast_data['ds'] = forecast_data['ds'].dt.tz_localize(None) # Remove timezone for Prophet
 
-    m = Prophet(interval_width=0.95)
+    # Optimized settings to prevent overfitting/noise on small data
+    m = Prophet(
+        interval_width=0.95,
+        weekly_seasonality=False,
+        daily_seasonality=False,
+        yearly_seasonality=False
+    )
     m.fit(forecast_data)
     future = m.make_future_dataframe(periods=30)
     forecast = m.predict(future)
     
-    forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].to_csv("data/processed/prophet_tahmin.csv", index=False)
-    print("30-day forecast saved to prophet_tahmin.csv")
+    # Mathematical safety: Prevent negative toxicity values
+    forecast['yhat'] = forecast['yhat'].clip(lower=0, upper=4)
+    forecast['yhat_lower'] = forecast['yhat_lower'].clip(lower=0, upper=4)
+    forecast['yhat_upper'] = forecast['yhat_upper'].clip(lower=0, upper=4)
+
+    # Export to JSON for frontend
+    forecast['ds'] = forecast['ds'].dt.strftime('%Y-%m-%d')
+    forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].to_json("data/processed/prophet_tahmin.json", orient="records")
+    
+    print("30-day forecast saved to prophet_tahmin.json")
 except Exception as e:
     print(f"Prophet forecasting skipped or failed: {e}")
 
-print("\n[MISSION COMPLETE] All 3 dynamic files are now in data/processed/")
+print("\n[MISSION COMPLETE] All dynamic files are now in data/processed/")
