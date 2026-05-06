@@ -52,10 +52,13 @@ df['toxicity_score'] = df['toxic_level'].astype(float)
 
 # 4. CLUSTERING & PCA (Identity Page)
 print("[Step 4/5] Running behavioral clustering (Post-based)...")
-# Since most agents have "ID Bulunamadı", we cluster individual posts to show density
-cluster_df = df[['id', 'toxicity_score', 'is_encrypted', 'upvotes_count']].copy()
+# Calculate content length to add more variance to features
+df['content_len'] = df['content_body'].fillna("").apply(len)
 
-features = ['toxicity_score', 'is_encrypted', 'upvotes_count']
+# Since most agents have "ID Bulunamadı", we cluster individual posts to show density
+cluster_df = df[['id', 'toxicity_score', 'is_encrypted', 'upvotes_count', 'content_len']].copy()
+
+features = ['toxicity_score', 'is_encrypted', 'upvotes_count', 'content_len']
 scaler = StandardScaler()
 scaled_data = scaler.fit_transform(cluster_df[features].fillna(0))
 
@@ -64,11 +67,13 @@ coords = pca.fit_transform(scaled_data)
 
 kmeans = KMeans(n_clusters=4, random_state=42, n_init=10)
 cluster_df['cluster'] = kmeans.fit_predict(scaled_data)
-cluster_df['pca_x'] = coords[:, 0]
-cluster_df['pca_y'] = coords[:, 1]
+
+# ADDING JITTER: Small random noise to prevent identical points from overlapping
+cluster_df['pca_x'] = coords[:, 0] + np.random.normal(0, 0.1, size=len(cluster_df))
+cluster_df['pca_y'] = coords[:, 1] + np.random.normal(0, 0.1, size=len(cluster_df))
 
 # Rename columns for clarity in frontend
-cluster_df.columns = ['id', 'toxicity_score', 'is_encrypted', 'upvotes_count', 'cluster', 'pca_x', 'pca_y']
+cluster_df = cluster_df[['id', 'toxicity_score', 'is_encrypted', 'upvotes_count', 'cluster', 'pca_x', 'pca_y']]
 
 # Save a smaller sample for the scatter plot to keep it fast (e.g., 5k points)
 cluster_df.sample(n=min(5000, len(cluster_df))).to_json("data/processed/ajan_kumeleri.json", orient="records")
