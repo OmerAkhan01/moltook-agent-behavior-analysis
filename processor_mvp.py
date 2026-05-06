@@ -12,14 +12,14 @@ import os
 os.makedirs("data/processed", exist_ok=True)
 
 # 1. LOAD & SAMPLE
-print("[Step 1/5] Loading data and sampling...")
+print("[Step 1/5] Loading cleaned data and sampling...")
 try:
-    # Reading CSV instead of Parquet for the current environment
-    df_raw = pd.read_csv("data/raw/moltbook_raw.csv")
+    # Use the cleaned final version instead of raw data
+    df_raw = pd.read_csv("moltbook_temiz_final.csv")
     # Take a 50k sample for the MVP (or total if less than 50k)
     sample_size = min(50000, len(df_raw))
     df = df_raw.sample(n=sample_size, random_state=42)
-    print(f"Successfully loaded and sampled {sample_size} records.")
+    print(f"Successfully loaded and sampled {sample_size} records from cleaned dataset.")
 except Exception as e:
     print(f"Error loading data: {e}")
     exit(1)
