@@ -1,0 +1,14 @@
+services:
+  moltbook:
+    build: .
+    ports:
+      - "8501:8501"
+    environment:
+      - STREAMLIT_SERVER_HEADLESS=true
+    # Optional: allow iterating without rebuilding image
+    volumes:
+      - ./:/app
+    command: >
+      python -m streamlit run app.py
+      --server.address=0.0.0.0
+      --server.port=8501

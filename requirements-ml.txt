@@ -1,0 +1,9 @@
+streamlit
+pandas
+pyarrow
+scikit-learn
+prophet
+plotly
+joblib
+datasets
+

@@ -1,0 +1,279 @@
+MoltAnalytics — Görev Bazlı Sunum (ilerleme.txt’ye göre)
+=======================================================
+
+Tarih: 2026-05-06
+Kaynak Plan: /Users/omerakhan/Desktop/ilerleme.txt
+Repo: /Users/omerakhan/Desktop/moltbook
+
+Bu sunumun amacı
+---------------
+Bu doküman, ilerleme.txt’deki rol/görev dağılımına göre:
+1) Herkesin “ne yaptı?” sorusuna dosya bazında net yanıt verir.
+2) Ham veriden dashboard’a giden veri akışını adım adım anlatır.
+3) Hangi kısımlar ilerleme.txt’deki hedefle birebir örtüşüyor / nerede farklılaşıyor açıkça yazar.
+4) En sonda repo envanterini (dosya listesi) verir.
+
+Önemli not (veri gerçekliği)
+---------------------------
+Bu repo şu an ağırlıklı olarak “SimulaMet/moltbook-observatory-archive” arşiv verisi üstünden çalışır.
+Bu arşiv; “threat/identity_attack/severe_toxicity” gibi NLP toksisite alt-boyutlarını doğrudan içermez.
+Bu nedenle dashboard’daki “Skor/Toksisite” alanı; verilen arşivdeki etkileşim skorlarından türetilen PROXY bir ölçümdür.
+
+-------------------------------------------------------
+0) Mimari Özet (1 slayt)
+-------------------------------------------------------
+Ham veri (data/raw, arşiv)  →  Pipeline (src/process_data.py)
+→ İşlenmiş veri (data/processed/*.parquet)  →  Cache katmanı (src/data_loader.py)
+→ UI (app.py + pages/*.py)  +  Kanıt görselleri (assets/plots/*.png)
+
+------------------------------------------------------
+1) VERİ ÇEKEN (Veri Mühendisi) — “Veriyi bul, indir, depola”
+------------------------------------------------------
+Rolün hedefi (ilerleme.txt):
+- HF dataset’lerini belirlemek ve çekmek (gerekirse streaming)
+- Ham veriyi hızlı okunacak formata dönüştürmek (Parquet) ve data/raw altına koymak
+- Otomasyon için fetch scripti sağlamak
+
+Teslimatlar (bu repoda):
+- data/raw altında arşiv veri yapısı
+- src/fetch_data.py (veri çekme/yerleştirme başlangıç scripti)
+
+Projede karşılığı / yapılan işler:
+
+1.1 Ham veri deposu (data/raw)
+- data/raw/moltbook-observatory-archive/…
+  - SimulaMet/moltbook-observatory-archive dataset’i yerel klasörde mevcut.
+  - İçerik: date-partitioned parquet’ler (agents / posts / comments / …).
+  - Ölçek: ~1364 dosya (ham arşiv).
+  - DevOps notu: Bu klasör çok büyük olduğu için Docker image’a dahil edilmez (`.dockerignore`).
+
+1.2 Veri çekme scripti
+- src/fetch_data.py
+  - Amaç: “veriyi otomatik klasöre düşürme” ihtiyacının başlangıç noktası.
+  - Bu repoda pipeline doğrudan observatory-archive klasör yapısını tüketir.
+
+1.3 HF/Git-LFS notu
+- Dataset kaynakları HF’de LFS/Xet kullanabilir. Projede dataset yerelde mevcut olduğu için UI/pipeline doğrudan local parquet’lerden çalışır.
+
+Eksik/Not (ilerleme.txt ile fark):
+- İlerleme.txt’de ayrıca AIcell/moltbook-data (1.8M) gibi başka kaynaklar da hedefleniyor.
+  Bu repoda “çalışan ürün” observatory-archive üstünden kuruldu.
+  İstenirse Sprint 1’e uygun şekilde src/fetch_data.py genişletilerek 1.8M havuz da data/raw altına eklenebilir.
+
+------------------------------------------------------
+2) VERİ İŞLEYEN (Veri Bilimcisi / Analist) — “Ham veriyi anlamlı çıktıya çevir”
+------------------------------------------------------
+Rolün hedefi (ilerleme.txt):
+- Temizlik + Base64 çözümü
+- NLP toksisite puanlama (toxic-bert vb.)
+- (Gelişmiş) KMeans++ ile persona/kümeleme
+- Prophet ile 30 günlük tahmin + güven aralıkları
+
+Projede karşılığı / yapılan işler:
+
+2.1 Ana pipeline (ham → işlenmiş)
+- src/process_data.py
+  - Ham veriyi okuduğu yer:
+    data/raw/moltbook-observatory-archive/data/{agents,posts,comments}/**/*.parquet
+  - Yaptığı işler:
+    - Agent-level feature engineering (post/comment sayıları, skor ortalamaları vb.)
+    - KMeans clustering (4 küme)
+    - Günlük trend (ds,y)
+    - Prophet forecast (ds, yhat, yhat_lower, yhat_upper)
+  - Ürettiği çıktılar (dashboard bunları okur):
+    - data/processed/clustered_agents.parquet
+    - data/processed/toxicity_daily_trend.parquet
+    - data/processed/toxicity_forecast.parquet
+
+2.2 Notebook & yayın kalitesinde çıktı üretimi (Colab/rapor hattı)
+- notebooks/moltook-agent-behavior-analysis/*
+  - 01_Veri_Analizi.ipynb: temel analiz
+  - 02_Gonderi_Kumeleme.ipynb: PCA/cluster görselleştirmeleri
+  - 03_Zaman_Serisi_Tahmin.ipynb: zaman serisi + Prophet mantığı
+- scripts/moltook-agent-behavior-analysis/run_all.py
+  - Akademik/publishable PNG görseller üretir (assets/plots/*).
+  - “Sunum kanıt görselleri” bu klasörden gelir.
+
+2.3 Base64 / temizleme
+- scripts/moltook-agent-behavior-analysis/processor_mvp.py
+- scripts/moltook-agent-behavior-analysis/clean_pipeline.py
+  - Colab tabanlı örnek temizleme/integrasyon hattı.
+
+Eksik/Not (ilerleme.txt ile fark):
+- İlerleme.txt “toxic-bert” gibi gerçek NLP toksisite motoru bekliyor.
+  Bu repoda observatory-archive verisi toksisite alt-boyutlarını içermediği için,
+  dashboard’ın çalışması adına “proxy skor” kullanıldı.
+  Gerçek NLP entegrasyonu ayrı bir Sprint 2 işi olarak eklenebilir (requirements-ml.txt + model pipeline).
+
+------------------------------------------------------
+3) BACKEND & SİSTEM (Scrum Master / Entegrasyon) — “Hızlı servis katmanı + devops”
+------------------------------------------------------
+Rolün hedefi (ilerleme.txt):
+- Cache mimarisi (data_loader)
+- Model entegrasyonu (models.py)
+- DevOps (dağıtım, container, CI)
+- Test süreci ve raporlama (smoke/contract/e2e)
+
+Projede karşılığı / yapılan işler:
+
+3.1 Cache & veri servis katmanı
+- src/data_loader.py
+  - Streamlit cache ile data/processed altındaki parquet’leri yükler.
+  - UI sayfaları buradan okur (tek kaynak: processed outputs).
+
+3.2 Modeller / yardımcılar
+- src/models.py
+  - Yardımcı model fonksiyonlarının yeri.
+  - Not: Risk sayfası öncelikle data/processed forecast’ını kullanacak şekilde tasarlandı.
+
+3.3 Filtre / güvenlik yardımcıları
+- src/filters.py: ortak filtreleme yardımcıları
+- src/secret_scrubber.py: olası hassas veri temizleme yaklaşımı (varsa)
+
+3.4 DevOps / Container
+- Dockerfile
+- docker-compose.yml
+- .dockerignore
+  - data/raw image’a alınmaz (çok büyük). data/processed image içinde.
+- .github/workflows/ci.yml: CI hattı (varsa lint/smoke)
+
+3.5 Test işlemi (Backend sorumluluğu)
+- Amaç: PR/merge öncesi sistemin “çalıştığını” kanıtlamak.
+- Yapılan testler:
+  - Syntax doğrulama (AST parse)
+  - Veri sözleşmesi (data/processed kolonları + dosya varlığı)
+  - Pipeline e2e (src/process_data.py)
+- Rapor:
+  - reports/TEST_RAPORU.md
+- Tipik komutlar:
+  - python3 src/process_data.py
+  - (contract) python3 -c "import pandas as pd; pd.read_parquet('data/processed/clustered_agents.parquet').head()"
+
+------------------------------------------------------
+4) FRONTEND (UI/UX) — “3 sayfalık modern dashboard”
+------------------------------------------------------
+Rolün hedefi (ilerleme.txt):
+- Streamlit multipage
+- 3 sayfa: davranış, kimlikler, risk
+- İnteraktif grafikler, filtreler, modern tema
+- Prophet güven aralığı + eşikler + uyarı mantığı
+
+Projede karşılığı / yapılan işler:
+
+4.1 Ana giriş
+- app.py
+  - 3 sayfaya yönlendiren ana kapı.
+
+4.2 Sayfalar
+- pages/1_Davranis_Analizi.py
+  - Küme dağılımı + küme bazlı metrikler + skor/bileşik skor scatter
+  - assets/plots ile kanıt görselleri sekmesi
+- pages/2_Ajan_Kimlikleri.py
+  - Radar profil + boyut dağılımları + skor dağılımları
+  - Büyük veri için robust ölçekleme seçenekleri
+- pages/3_Risk_Tahmini.py
+  - Trend + Prophet forecast + rolling risk + küme bazlı risk + top risk ajanlar
+  - Kanıt görselleri (sidebar thumbnail + ayrı kanıt sekmesi)
+
+4.3 Tema
+- .streamlit/config.toml
+  - Dark theme; CORS ayarı düzeltilmiş.
+
+4.4 Kanıt görselleri (assets)
+- assets/plots/*.png
+  - scripts/run_all.py tarafından üretilen görsel çıktılar (kanıt/rapor).
+
+------------------------------------------------------
+5) TEST & RAPORLAR — “Çalıştığını kanıtla”
+------------------------------------------------------
+- reports/TEST_RAPORU.md
+  - Smoke + data contract + pipeline e2e sonuçları.
+- reports/04_Yonetici_Ozeti_Raporu.md
+  - Yönetici özeti raporu.
+
+------------------------------------------------------
+6) Proje Dosya Envanteri (repo görünürlüğü)
+------------------------------------------------------
+6.1 Repo (data/raw hariç) — 48 dosya
+
+.DS_Store
+.dockerignore
+.github/workflows/ci.yml
+.gitignore
+.streamlit/config.toml
+Dockerfile
+README.md
+app.py
+assets/plots/01_daily_activity.png
+assets/plots/02_topic_distribution.png
+assets/plots/03_toxicity_distribution.png
+assets/plots/04_clustering_pca.png
+assets/plots/05_activity_forecast.png
+assets/plots/06_toxicity_forecast.png
+assets/plots/07_topic_toxicity_heatmap.png
+assets/plots/08_toxicity_violin_analysis.png
+assets/plots/09_cluster_topic_composition.png
+assets/plots/aktivite_trend_sik.png
+assets/plots/gelismis_alan_konu.png
+assets/plots/kumulatif_buyume_tahmin.png
+assets/plots/toksisite_trend.png
+assets/plots/toksisite_yogunluk_keman.png
+data/.DS_Store
+data/processed/clustered_agents.parquet
+data/processed/toxicity_daily_trend.parquet
+data/processed/toxicity_forecast.parquet
+docker-compose.yml
+notebooks/moltook-agent-behavior-analysis/01_Veri_Analizi.ipynb
+notebooks/moltook-agent-behavior-analysis/02_Gonderi_Kumeleme.ipynb
+notebooks/moltook-agent-behavior-analysis/03_Zaman_Serisi_Tahmin.ipynb
+notebooks/moltook-agent-behavior-analysis/Untitled27.ipynb
+pages/1_Davranis_Analizi.py
+pages/2_Ajan_Kimlikleri.py
+pages/3_Risk_Tahmini.py
+reports/04_Yonetici_Ozeti_Raporu.md
+reports/TEST_RAPORU.md
+reports/SUNUM_GOREV_DOSYA_HARITASI.txt
+requirements-ml.txt
+requirements.txt
+scripts/moltook-agent-behavior-analysis/clean_pipeline.py
+scripts/moltook-agent-behavior-analysis/processor_mvp.py
+scripts/moltook-agent-behavior-analysis/run_all.py
+src/data_loader.py
+src/fetch_data.py
+src/filters.py
+src/models.py
+src/process_data.py
+src/secret_scrubber.py
+src/ui.py
+
+6.2 data/raw (ham dataset) — çok büyük envanter
+
+- data/raw toplam dosya: 1365
+- data/raw/moltbook-observatory-archive toplam dosya: 1364
+
+Not:
+- Bu klasör, HF dataset arşivinin tamamını içerir (date-partitioned parquet’ler + metadata).
+- Boyut nedeniyle burada tek tek tüm alt dosyalar listelenmedi; bunun yerine sayım ve kaynak klasör belirtildi.
+- Eğer “tek tek full liste” istenirse ayrı bir export çıktısı üretilebilir (dosya çok uzun olacaktır).
+
+------------------------------------------------------
+7) “Kim ne yaptı?” (1 sayfalık özet)
+------------------------------------------------------
+Veri Çeken:
+- Ham arşivi projeye kazandırdı: data/raw/moltbook-observatory-archive/…
+- Çekme/yerleştirme başlangıç scripti: src/fetch_data.py
+
+Veri İşleyen:
+- Ham veriden dashboard çıktıları: src/process_data.py → data/processed/*.parquet
+- Notebook ve yayın görselleri: notebooks/* ve scripts/moltook-agent-behavior-analysis/run_all.py
+
+Backend/Sistem:
+- Cache katmanı: src/data_loader.py
+- Container/CI: Dockerfile, docker-compose.yml, .dockerignore, .github/workflows/ci.yml
+- Test kanıtı: reports/TEST_RAPORU.md
+
+Frontend:
+- UI giriş: app.py
+- 3 sayfa: pages/1_Davranis_Analizi.py, pages/2_Ajan_Kimlikleri.py, pages/3_Risk_Tahmini.py
+- Kanıt görsel entegrasyonu: assets/plots/*.png
+
